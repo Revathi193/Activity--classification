@@ -1,0 +1,65 @@
+image: docker
+services:
+    - docker:dind
+
+stages:
+    - build
+    - test
+    - deploy
+variables:
+  CONTAINER_DEVOPS_IMAGE: activityprediction:latest
+
+build:
+    stage: build
+    only:
+        - develop
+        - main
+
+    script:
+        - cd activityprediction
+        - docker build --tag=activityprediction:latest .
+        - sudo docker push $CONTAINER_DEVOPS_IMAGE
+
+    tags:
+        - act_build_server
+test:
+    stage: test
+    only:
+        - develop
+        - main
+    script:
+        - echo run tests
+    tags:
+        - act_build_server
+
+step-deploy-dev:
+    stage: deploy
+    variables:
+        tag: $CI_COMMIT_SHORT_SHA
+    only:
+      - develop
+    script:
+     - echo $tag
+     - echo $CI_COMMIT_SHORT_SHA
+     - sudo docker pull $CONTAINER_DEVOPS_IMAGE
+     - cd activityprediction
+     - sudo -E docker-compose up -d
+    environment: main
+    tags:
+        - act_dev_server
+
+step-deploy-dev:
+    stage: deploy
+    variables:
+        tag: $CI_COMMIT_SHORT_SHA
+    only:
+      - main
+    script:
+     - echo $tag
+     - echo $CI_COMMIT_SHORT_SHA
+     - sudo docker pull $CONTAINER_DEVOPS_IMAGE
+     - cd activityprediction
+     - sudo -E docker-compose up -d
+    environment: main
+    tags:
+        - act_demo_server
