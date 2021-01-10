@@ -1,0 +1,9 @@
+output:
+  text: Activity Classification
+
+image: activityprediction
+company: yourcompany
+version: latest
+
+# Details of class inheriting from Wrapper
+wrapper-info: activityprediction.wrapper.PipelineWrapper
